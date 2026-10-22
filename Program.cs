@@ -3,79 +3,97 @@ namespace IntList;
 
 class IntList
 {
-    private int[] arr=new int[4];
-    public int count = 0;
-
-    private void Resize(int[] array)
+    private const int DefaultCapacity = 4;
+ 
+    private int[] arr;
+ 
+    public int Count { get; private set; }
+    public int Capacity => arr.Length;
+ 
+    public int this[int index]
     {
-        int size = array.Length;
-        int[] newArr=new int[size];
-        for (int i = 0; i < size; i++)
+        get { return arr[index]; }
+        set { arr[index] = value; }
+    }
+    public IntList(int capacity = DefaultCapacity)
+    {
+        if (capacity < 0)
+        {
+            capacity = DefaultCapacity;
+        }
+ 
+        arr = new int[capacity];
+    }
+    private void EnsureCapacity(int minCapacity=DefaultCapacity)
+    {
+        if (minCapacity < Capacity)
+        {
+            return;
+        }
+
+        int newCapacity = Capacity == 0 ? DefaultCapacity : Capacity * 2;
+        while (newCapacity < minCapacity)
+        {
+            if (newCapacity > int.MaxValue / 2)
+            {
+                newCapacity = minCapacity;
+                return;
+            }
+            newCapacity *= 2;
+        }
+
+        int[] newArr = new int[newCapacity];
+        for (int i = 0; i < arr.Length; i++)
         {
             newArr[i] = arr[i];
         }
-
-        arr = new int[size * 2];
-        for (int i = 0; i < size; i++)
-        {
-            arr[i] = newArr[i];
-        }
+        arr = newArr;
     }
 
     public void Add(int number)
     {
-        if (arr.Length > count)
-        {
-            arr[count] = number;
-            count++;
-        }
-        else
-        {
-            Resize(arr);
-            Add(number);
-        }
+        EnsureCapacity(Count + 1);
+        arr[Count] = number;
+        Count++;
     }
 
     public void Insert(int index, int number)
     {
-        if (index < 0 || index > count)
+        if (index < 0 || index > Count)
         {
             Console.WriteLine("Invalid index");
             return;
         }
 
-        if (arr.Length == count)
-        {
-            Resize(arr);
-        }
+        EnsureCapacity(Count + 1);
 
-        for (int i = count; i > index; i--)
+        for (int i = Count; i > index; i--)
         {
             arr[i] = arr[i - 1];
         }
         arr[index] = number;
-        count++;
+        Count++;
     }
 
     public void RemoveAt(int index)
     {
-        if (index < 0 || index >= count)
+        if (index < 0 || index >= Count)
         {
             Console.WriteLine("There is no value in that position");
             return;
         }
 
-        for (int i = index; i < count - 1; i++)
+        for (int i = index; i < Count - 1; i++)
         {
             arr[i] = arr[i + 1];
         }
-        arr[count - 1] = 0;
-        count--;
+        arr[Count - 1] = 0;
+        Count--;
     }
 
     public int? Get(int index)
     {
-        if (index < 0 || index >= count)
+        if (index < 0 || index >= Count)
         {
             Console.WriteLine("There is no value in that position");
             return null;
@@ -86,7 +104,7 @@ class IntList
     public void Print()
     {
         Console.WriteLine("The array numbers are:");
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < Count; i++)
         {
             Console.Write(arr[i] + " ");
         }
